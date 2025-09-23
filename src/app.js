@@ -18,4 +18,4 @@ app.post("/items", (req, res) => {
   res.status(201).json({ message: "Item added", items });
 });
 
-module.exports = 
+module.exports = app;
