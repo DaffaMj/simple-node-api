@@ -15,6 +15,9 @@ app.use(express.json());
 
 // --- Data Sementara ---
 
+// 💾 Array untuk menyimpan item
+let items = ["Apple", "Banana", "Cherry", "Durian", "Elderberry"];
+
 // --- Routes/Endpoints ---
 
 // GET root (Tampilan Visual Selamat Datang dengan Tombol)
