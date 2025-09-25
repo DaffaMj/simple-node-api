@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 
 // Data sementara
-let items = ["Apple", "Banana", "Cherry", "Durian", "Elderberry"];
+let items = [];
 
 // --- ROUTES ---
 
