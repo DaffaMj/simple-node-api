@@ -10,6 +10,11 @@ app.get("/items", (req, res) => {
   res.json(items);
 });
 
+// GET root
+app.get("/", (req, res) => {
+  res.send("🚀 Simple Node API is running! Try /items");
+});
+
 // POST add item
 app.post("/items", (req, res) => {
   const { name } = req.body;
