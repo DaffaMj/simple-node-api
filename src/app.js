@@ -2,6 +2,7 @@
  * @fileoverview Simple Express API untuk mengelola daftar item.
  * Endpoint '/items' -> JSON (agar lolos test CI/CD)
  * Endpoint '/items/view' -> HTML cantik untuk tampilan user
+ * Endpoint DELETE /items/:index ditambahkan.
  */
 
 // 📦 Import modul utama
@@ -16,7 +17,7 @@ app.use(express.json());
 // --- Data Sementara ---
 
 // 💾 Array untuk menyimpan item
-let items = [];
+let items = []; 
 
 // --- ROUTES ---
 
@@ -54,6 +55,16 @@ app.get("/", (req, res) => {
                 background-color: #0056b3; 
                 box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
             }
+            .btn-delete-info { 
+                background-color: #dc3545; /* Merah */
+                padding: 5px 10px;
+                border-radius: 4px;
+                color: white;
+                font-weight: normal;
+                font-size: 0.9em;
+                display: block;
+                margin-top: 10px;
+            }
             hr { border: 0; height: 1px; background: #eee; margin: 25px 0; }
         </style>
     </head>
@@ -80,24 +91,32 @@ app.get("/", (req, res) => {
             <h2>Untuk Pengembang (API Endpoint):</h2>
             <p><strong>POST</strong> Menambahkan Item Baru (Gunakan Postman/Insomnia):</p>
             <p><code>/items</code></p>
-            <p style="font-size: 0.9em; color: #6c757d;">Body JSON: {"name": "item_baru"}</p>
+            
+            <p><strong>DELETE</strong> Menghapus Item (Gunakan Postman/Insomnia):</p>
+            <p><code>/items/:index</code></p>
+            <span class="btn-delete-info">
+                Contoh: DELETE /items/1 (Menghapus item pada indeks ke-1)
+            </span>
+            <p style="font-size: 0.9em; color: #6c757d; margin-top: 10px;">
+                Catatan: Indeks dimulai dari 0. Gunakan GET /items untuk melihat posisi item.
+            </p>
         </div>
     </body>
     </html>
   `);
 });
 
-// ✅ GET all items (JSON untuk test) - TETAP MURNI JSON
+// ✅ GET all items (JSON untuk test)
 app.get("/items", (req, res) => {
   res.json(items);
 });
 
-// 🎨 GET all items (HTML cantik untuk user) - DIPERBAIKI VISUALNYA
+// 🎨 GET all items (HTML cantik untuk user)
 app.get("/items/view", (req, res) => {
   // 📄 Membuat daftar HTML dari array items
   const itemListHTML = items.length > 0 
     ? items.map((item, index) => `
-        <li class="item-list-li"><strong>${index + 1}.</strong> ${item}</li>
+        <li class="item-list-li"><strong>${index + 1}.</strong> ${item} (Indeks: ${index})</li>
       `).join('')
     : '<p style="text-align:center; color:#dc3545; font-weight:bold; padding: 20px 0;">List item masih kosong. Silakan gunakan POST untuk menambah data.</p>';
 
@@ -128,7 +147,7 @@ app.get("/items/view", (req, res) => {
                 display: inline-block; 
                 margin-top: 30px; 
                 padding: 10px 15px;
-                background-color: #6c757d; /* Abu-abu */
+                background-color: #6c757d; 
                 color: white; 
                 text-decoration: none; 
                 font-weight: bold; 
@@ -166,6 +185,26 @@ app.post("/items", (req, res) => {
 
   // 🎉 Kirim status 201 (Created) dan respons yang berisi data terbaru
   res.status(201).json({ message: "Item added successfully", items });
+});
+
+// 🗑️ DELETE an item
+app.delete("/items/:index", (req, res) => {
+    // Ambil indeks dari URL parameter, dan konversi ke integer
+    const index = parseInt(req.params.index, 10); 
+
+    // 1. Validasi Indeks: Pastikan indeks adalah angka yang valid dan ada dalam array
+    if (isNaN(index) || index < 0 || index >= items.length) {
+        return res.status(404).json({ error: "Item not found or invalid index." });
+    }
+
+    // 2. Hapus Item menggunakan splice
+    const deletedItem = items.splice(index, 1);
+
+    // 3. Kirim Respons Sukses
+    res.status(200).json({ 
+        message: `Item '${deletedItem[0]}' at index ${index} deleted successfully.`, 
+        items: items 
+    });
 });
 
 // 📤 Ekspor aplikasi Express
