@@ -1,7 +1,7 @@
 /**
  * @fileoverview Simple Express API untuk mengelola daftar item.
  * Kode ini mencakup perbaikan visual pada endpoint root (/) dan daftar item (/items) 
- * menggunakan HTML/CSS.
+ * menggunakan HTML/CSS agar tampilannya bagus di browser.
  */
 
 // 📦 Import modul utama
@@ -37,6 +37,8 @@ app.get("/", (req, res) => {
             p { font-size: 1.1em; margin-bottom: 5px;}
             code { background-color: #f8f9fa; padding: 5px 10px; border-radius: 6px; font-weight: bold; color: #d63384; border: 1px solid #ddd; display: inline-block; margin: 5px 0;}
             strong { color: #28a745;}
+            a { text-decoration: none; color: #007bff; font-weight: bold;}
+            a:hover { text-decoration: underline; }
         </style>
     </head>
     <body>
@@ -63,7 +65,7 @@ app.get("/", (req, res) => {
 app.get("/items", (req, res) => {
   // 📄 Membuat daftar HTML dari array items
   const itemListHTML = items.map((item, index) => `
-    <li class="item-list-li">${index + 1}. ${item}</li>
+    <li class="item-list-li"><strong>${index + 1}.</strong> ${item}</li>
   `).join('');
 
   // 🎨 Mengirimkan respons HTML
@@ -79,14 +81,28 @@ app.get("/items", (req, res) => {
             .container-list { max-width: 600px; margin: auto; background: white; padding: 30px 40px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); }
             h1 { color: #28a745; border-bottom: 3px solid #28a745; padding-bottom: 10px; margin-bottom: 20px; text-align: center; }
             .item-list { list-style: none; padding: 0; }
-            .item-list-li { background-color: #e9f7ef; margin-bottom: 10px; padding: 12px 15px; border-radius: 6px; font-size: 1.1em; border-left: 5px solid #28a745; text-align: left;}
-            .item-list-li:nth-child(even) { background-color: #f7fcf9; }
-            .back-link { display: block; margin-top: 20px; text-align: center; color: #007bff; text-decoration: none; font-weight: bold;}
+            .item-list-li { 
+                background-color: #e9f7ef; 
+                margin-bottom: 10px; 
+                padding: 12px 15px; 
+                border-radius: 6px; 
+                font-size: 1.1em; 
+                border-left: 5px solid #28a745; 
+                text-align: left;
+                transition: background-color 0.3s;
+            }
+            .item-list-li:hover {
+                background-color: #d1eccd;
+            }
+            .item-list-li:nth-child(even) { background-color: #f7fcf9; border-left: 5px solid #17a2b8;}
+            .item-list-li:nth-child(even):hover { background-color: #e2f4f7;}
+            .back-link { display: block; margin-top: 30px; text-align: center; color: #007bff; text-decoration: none; font-weight: bold; font-size: 1em;}
+            .back-link:hover { text-decoration: underline; }
         </style>
     </head>
     <body>
         <div class="container-list">
-            <h1>✅ Daftar Item Saat Ini</h1>
+            <h1>✅ Daftar Item Saat Ini (${items.length} Item)</h1>
             <ul class="item-list">
                 ${itemListHTML}
             </ul>
