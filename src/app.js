@@ -1,8 +1,8 @@
 /**
- * @fileoverview Simple Express API untuk mengelola daftar item.
+ * @fileoverview Simple Express API untuk mengelola daftar item (CRUD Lengkap).
  * Endpoint '/items' -> JSON (agar lolos test CI/CD)
  * Endpoint '/items/view' -> HTML cantik untuk tampilan user
- * Endpoint DELETE /items/:index ditambahkan.
+ * Endpoint DELETE /items/:index dan PUT /items/:index ditambahkan.
  */
 
 // 📦 Import modul utama
@@ -55,8 +55,7 @@ app.get("/", (req, res) => {
                 background-color: #0056b3; 
                 box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
             }
-            .btn-delete-info { 
-                background-color: #dc3545; /* Merah */
+            .endpoint-info { 
                 padding: 5px 10px;
                 border-radius: 4px;
                 color: white;
@@ -65,6 +64,9 @@ app.get("/", (req, res) => {
                 display: block;
                 margin-top: 10px;
             }
+            .info-delete { background-color: #dc3545; } /* Merah */
+            .info-update { background-color: #ffc107; color: #333; } /* Kuning */
+
             hr { border: 0; height: 1px; background: #eee; margin: 25px 0; }
         </style>
     </head>
@@ -74,7 +76,7 @@ app.get("/", (req, res) => {
             <p>Selamat datang! Ini adalah contoh API dasar menggunakan Express.</p>
             <hr>
             
-            <h2>Akses Data</h2>
+            <h2>Akses Data (READ)</h2>
             
             <p>Pilih mode tampilan:</p>
             
@@ -88,17 +90,25 @@ app.get("/", (req, res) => {
 
             <hr>
 
-            <h2>Untuk Pengembang (API Endpoint):</h2>
-            <p><strong>POST</strong> Menambahkan Item Baru (Gunakan Postman/Insomnia):</p>
-            <p><code>/items</code></p>
+            <h2>Operasi CRUD (Gunakan Postman/Insomnia):</h2>
             
-            <p><strong>DELETE</strong> Menghapus Item (Gunakan Postman/Insomnia):</p>
+            <p><strong>POST</strong> (CREATE) Menambahkan Item Baru:</p>
+            <p><code>/items</code></p>
+            <p style="font-size: 0.9em; color: #6c757d;">Body JSON: {"name": "item_baru"}</p>
+            
+            <p style="margin-top: 20px;"><strong>PUT</strong> (UPDATE) Mengubah Item:</p>
             <p><code>/items/:index</code></p>
-            <span class="btn-delete-info">
-                Contoh: DELETE /items/1 (Menghapus item pada indeks ke-1)
+            <span class="endpoint-info info-update">
+                Contoh: PUT /items/0 (Body: {"name": "Nama Baru"})
+            </span>
+
+            <p style="margin-top: 20px;"><strong>DELETE</strong> Menghapus Item:</p>
+            <p><code>/items/:index</code></p>
+            <span class="endpoint-info info-delete">
+                Contoh: DELETE /items/1
             </span>
             <p style="font-size: 0.9em; color: #6c757d; margin-top: 10px;">
-                Catatan: Indeks dimulai dari 0. Gunakan GET /items untuk melihat posisi item.
+                Catatan: Indeks dimulai dari 0.
             </p>
         </div>
     </body>
@@ -106,12 +116,12 @@ app.get("/", (req, res) => {
   `);
 });
 
-// ✅ GET all items (JSON untuk test)
+// ✅ GET all items (JSON untuk test) - READ
 app.get("/items", (req, res) => {
   res.json(items);
 });
 
-// 🎨 GET all items (HTML cantik untuk user)
+// 🎨 GET all items (HTML cantik untuk user) - READ
 app.get("/items/view", (req, res) => {
   // 📄 Membuat daftar HTML dari array items
   const itemListHTML = items.length > 0 
@@ -174,7 +184,7 @@ app.get("/items/view", (req, res) => {
   `);
 });
 
-// POST add item
+// POST add item - CREATE
 app.post("/items", (req, res) => {
   const { name } = req.body;
 
@@ -187,12 +197,37 @@ app.post("/items", (req, res) => {
   res.status(201).json({ message: "Item added successfully", items });
 });
 
-// 🗑️ DELETE an item
+// 🔄 PUT update item - UPDATE
+app.put("/items/:index", (req, res) => {
+    const index = parseInt(req.params.index, 10);
+    const { name } = req.body;
+
+    // 1. Validasi Input: Pastikan 'name' ada
+    if (!name) {
+        return res.status(400).json({ error: "New name is required in the request body." });
+    }
+
+    // 2. Validasi Indeks: Pastikan indeks valid
+    if (isNaN(index) || index < 0 || index >= items.length) {
+        return res.status(404).json({ error: "Item not found or invalid index." });
+    }
+
+    // 3. Update Item
+    const oldName = items[index];
+    items[index] = name; // Ganti nama item lama dengan nama baru
+
+    // 4. Kirim Respons Sukses
+    res.status(200).json({ 
+        message: `Item at index ${index} updated successfully from '${oldName}' to '${name}'.`, 
+        items: items 
+    });
+});
+
+// 🗑️ DELETE an item - DELETE
 app.delete("/items/:index", (req, res) => {
-    // Ambil indeks dari URL parameter, dan konversi ke integer
     const index = parseInt(req.params.index, 10); 
 
-    // 1. Validasi Indeks: Pastikan indeks adalah angka yang valid dan ada dalam array
+    // 1. Validasi Indeks: Pastikan indeks valid
     if (isNaN(index) || index < 0 || index >= items.length) {
         return res.status(404).json({ error: "Item not found or invalid index." });
     }
